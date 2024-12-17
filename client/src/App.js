@@ -5,7 +5,6 @@ import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 import ProfilePage from './pages/ProfilePage';
 import ActivitiesPage from './pages/ActivitiesPage';
-import MessagesPage from './pages/MessagesPage';
 import Layout from './components/Layout/Layout';
 import axios from 'axios';
 import { debounce } from 'lodash';
@@ -199,13 +198,6 @@ function App() {
                     user ? (
                       <Layout user={user} onLogout={handleLogout}>
                         <ActivitiesPage user={user} tasks={tasks} removeTask={removeTask} updateTask={updateTask} />
-                      </Layout>
-                    ) : <Navigate to="/login" />
-                  } />
-                  <Route path="/messages" element={
-                    user ? (
-                      <Layout user={user} onLogout={handleLogout}>
-                        <MessagesPage user={user} />
                       </Layout>
                     ) : <Navigate to="/login" />
                   } />
