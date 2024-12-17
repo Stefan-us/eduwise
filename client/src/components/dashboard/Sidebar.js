@@ -29,7 +29,6 @@ function Sidebar({ onLogout }) {
       <ul className="mt-6">
         <NavItem to="/dashboard" icon={faHome}>Dashboard</NavItem>
         <NavItem to="/activities" icon={faBook}>Activities</NavItem>
-        <NavItem to="/messages" icon={faEnvelope}>Messages</NavItem>
         <NavItem to="/profile" icon={faUser}>Profile</NavItem>
         <NavItem to="/learning" icon={faGraduationCap}>Learning</NavItem>
       </ul>
