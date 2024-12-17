@@ -35,10 +35,11 @@ STRICT RULES:
 5. No markdown or HTML formatting
 6. No explanatory text outside the JSON array
 7. No nested "resources" object - just a direct array
-8. Only use these exact values for type: "article", "video", "tutorial"
+8. Only use these exact values for type: "article", "video", "tutorial", "course"
 9. Only use these exact values for difficulty: "beginner", "intermediate", "advanced"
-10. URLs must be complete and valid
+10. URLs must be complete, valid, and point to real resources
 11. No line breaks within the JSON - it should be a single line
+12. No example.com URLs - use real educational websites
 
 Search query: "${query}"${filterText}`;
 };
@@ -144,8 +145,9 @@ const searchResources = async (query, filters = {}, limit = 6) => {
         typeof result.title === 'string' &&
         typeof result.description === 'string' &&
         typeof result.url === 'string' &&
-        ['article', 'video', 'tutorial'].includes(result.type) &&
-        ['beginner', 'intermediate', 'advanced'].includes(result.difficulty);
+        ['article', 'video', 'tutorial', 'course'].includes(result.type) &&
+        ['beginner', 'intermediate', 'advanced'].includes(result.difficulty) &&
+        !result.url.includes('example.com');
 
       if (!isValid) {
         console.error('Invalid result object:', result);
