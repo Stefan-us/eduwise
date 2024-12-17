@@ -7,18 +7,18 @@ const generateSearchPrompt = (query, filters = {}, limit = 6) => {
        ${filters.level ? `- Level: ${filters.level}` : ''}`
     : '';
 
-  return `You are an educational resource finder for EduWise. Provide ${limit} learning resources about "${query}" in valid JSON format.
+  return `You are an educational resource finder for EduWise. Return a JSON array containing exactly ${limit} learning resources about "${query}".
 
-The response must be a JSON array containing exactly ${limit} resources. Each resource must have these fields:
+Each resource in the array must strictly follow this format:
 {
   "title": "clear title",
   "description": "2-3 sentence description",
   "url": "direct link to resource",
-  "type": one of ["article", "video", "tutorial"],
-  "difficulty": one of ["beginner", "intermediate", "advanced"]
+  "type": "article" | "video" | "tutorial",
+  "difficulty": "beginner" | "intermediate" | "advanced"
 }
 
-Example response format:
+Example response:
 [
   {
     "title": "Introduction to Basic Mathematics",
@@ -31,7 +31,12 @@ Example response format:
 
 Search query: "${query}"${filterText}
 
-Remember: Return ONLY the JSON array with no additional text or formatting.`;
+Important:
+1. Return ONLY a valid JSON array
+2. Do not include any explanatory text
+3. Do not wrap the array in additional objects
+4. Ensure all URLs are valid and accessible
+5. Use only the specified values for type and difficulty fields`;
 };
 
 const searchResources = async (query, filters = {}, limit = 6) => {
@@ -88,13 +93,24 @@ const searchResources = async (query, filters = {}, limit = 6) => {
 
     let results;
     try {
-      // Check if the response is already a JSON object
-      if (typeof data.response === 'object') {
-        results = data.response;
+      // Clean up the response text
+      let responseText = data.response.trim();
+      
+      // Remove any extra newlines or spaces
+      responseText = responseText.replace(/\n+/g, '');
+      
+      // If the response is wrapped in extra quotes or braces, clean those up
+      responseText = responseText.replace(/^["'{]+|[}"']+$/g, '');
+      
+      // If response contains "resources", extract just the array
+      if (responseText.includes('"resources"')) {
+        const parsed = JSON.parse(`{${responseText}}`);
+        results = parsed.resources;
       } else {
-        // Try to parse it as JSON string
-        results = JSON.parse(data.response);
+        // Try parsing directly as array
+        results = JSON.parse(responseText);
       }
+      
       console.log('Parsed results:', JSON.stringify(results, null, 2));
     } catch (error) {
       console.error('JSON parse error:', error);
