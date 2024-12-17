@@ -7,28 +7,31 @@ const generateSearchPrompt = (query, filters = {}, limit = 6) => {
        ${filters.level ? `- Level: ${filters.level}` : ''}`
     : '';
 
-  return `You are an educational resource finder for EduWise, a learning management system. Your task is to recommend ${limit} high-quality learning resources based on the user's query.
+  return `You are an educational resource finder for EduWise. Provide ${limit} learning resources about "${query}" in valid JSON format.
 
-Guidelines:
-- Focus on reputable educational sources (e.g., Khan Academy, Coursera, MIT OpenCourseWare)
-- Ensure resources are accessible online and free when possible
-- Provide diverse resource types (unless filtered)
-- Include clear, concise descriptions
-- Match difficulty level to user requirements
-- Verify resource relevance to query
+The response must be a JSON array containing exactly ${limit} resources. Each resource must have these fields:
+{
+  "title": "clear title",
+  "description": "2-3 sentence description",
+  "url": "direct link to resource",
+  "type": one of ["article", "video", "tutorial"],
+  "difficulty": one of ["beginner", "intermediate", "advanced"]
+}
 
-Format your response as a JSON array with schema:
-[{
-  "title": string,       // Clear, descriptive title
-  "description": string, // 2-3 sentence summary
-  "url": string,        // Direct link to resource
-  "type": "article" | "video" | "tutorial",
-  "difficulty": "beginner" | "intermediate" | "advanced"
-}]
+Example response format:
+[
+  {
+    "title": "Introduction to Basic Mathematics",
+    "description": "A comprehensive guide covering fundamental math concepts. Perfect for beginners looking to build a strong foundation in mathematics.",
+    "url": "https://www.khanacademy.org/math/arithmetic",
+    "type": "tutorial",
+    "difficulty": "beginner"
+  }
+]
 
 Search query: "${query}"${filterText}
 
-Important: Your response must be a valid JSON array. Each object must have exactly these fields with the specified types.`;
+Remember: Return ONLY the JSON array with no additional text or formatting.`;
 };
 
 const searchResources = async (query, filters = {}, limit = 6) => {
@@ -59,7 +62,8 @@ const searchResources = async (query, filters = {}, limit = 6) => {
       body: JSON.stringify({
         model: 'mistral',
         prompt,
-        stream: false
+        stream: false,
+        format: 'json'
       })
     });
 
@@ -84,7 +88,13 @@ const searchResources = async (query, filters = {}, limit = 6) => {
 
     let results;
     try {
-      results = JSON.parse(data.response);
+      // Check if the response is already a JSON object
+      if (typeof data.response === 'object') {
+        results = data.response;
+      } else {
+        // Try to parse it as JSON string
+        results = JSON.parse(data.response);
+      }
       console.log('Parsed results:', JSON.stringify(results, null, 2));
     } catch (error) {
       console.error('JSON parse error:', error);
