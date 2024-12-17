@@ -7,36 +7,40 @@ const generateSearchPrompt = (query, filters = {}, limit = 6) => {
        ${filters.level ? `- Level: ${filters.level}` : ''}`
     : '';
 
-  return `You are an educational resource finder for EduWise. Return a JSON array containing exactly ${limit} learning resources about "${query}".
+  return `You are an educational resource finder for EduWise. You must return a valid JSON array containing EXACTLY ${limit} learning resources about "${query}". The response MUST be an ARRAY with square brackets, not a single object.
 
-Each resource in the array must strictly follow this format:
-{
-  "title": "clear title",
-  "description": "2-3 sentence description",
-  "url": "direct link to resource",
-  "type": "article" | "video" | "tutorial",
-  "difficulty": "beginner" | "intermediate" | "advanced"
-}
-
-Example response:
+REQUIRED FORMAT - MUST BE AN ARRAY:
 [
   {
-    "title": "Introduction to Basic Mathematics",
-    "description": "A comprehensive guide covering fundamental math concepts. Perfect for beginners looking to build a strong foundation in mathematics.",
-    "url": "https://www.khanacademy.org/math/arithmetic",
-    "type": "tutorial",
+    "title": "First Resource Title",
+    "description": "First resource description",
+    "url": "https://example.com/1",
+    "type": "article",
     "difficulty": "beginner"
+  },
+  {
+    "title": "Second Resource Title",
+    "description": "Second resource description",
+    "url": "https://example.com/2",
+    "type": "video",
+    "difficulty": "intermediate"
   }
 ]
 
-Search query: "${query}"${filterText}
+STRICT RULES:
+1. Response MUST be an ARRAY starting with [ and ending with ]
+2. Array MUST contain EXACTLY ${limit} resources
+3. No single objects - must be an array of objects
+4. No numbering or prefixes in titles
+5. No markdown or HTML formatting
+6. No explanatory text outside the JSON array
+7. No nested "resources" object - just a direct array
+8. Only use these exact values for type: "article", "video", "tutorial"
+9. Only use these exact values for difficulty: "beginner", "intermediate", "advanced"
+10. URLs must be complete and valid
+11. No line breaks within the JSON - it should be a single line
 
-Important:
-1. Return ONLY a valid JSON array
-2. Do not include any explanatory text
-3. Do not wrap the array in additional objects
-4. Ensure all URLs are valid and accessible
-5. Use only the specified values for type and difficulty fields`;
+Search query: "${query}"${filterText}`;
 };
 
 const searchResources = async (query, filters = {}, limit = 6) => {
@@ -68,7 +72,12 @@ const searchResources = async (query, filters = {}, limit = 6) => {
         model: 'mistral',
         prompt,
         stream: false,
-        format: 'json'
+        format: 'json',
+        options: {
+          temperature: 0.7,
+          num_predict: 2048,
+          stop: ["\n\n", "```", "}}", "]]"]
+        }
       })
     });
 
@@ -94,23 +103,30 @@ const searchResources = async (query, filters = {}, limit = 6) => {
     let results;
     try {
       // Clean up the response text
-      let responseText = data.response.trim();
-      
-      // Remove any extra newlines or spaces
-      responseText = responseText.replace(/\n+/g, '');
-      
-      // If the response is wrapped in extra quotes or braces, clean those up
-      responseText = responseText.replace(/^["'{]+|[}"']+$/g, '');
-      
-      // If response contains "resources", extract just the array
-      if (responseText.includes('"resources"')) {
-        const parsed = JSON.parse(`{${responseText}}`);
-        results = parsed.resources;
-      } else {
-        // Try parsing directly as array
-        results = JSON.parse(responseText);
+      let responseText = data.response
+        .trim()
+        // Remove all newlines and extra spaces
+        .replace(/\s+/g, ' ')
+        // Remove any markdown code blocks
+        .replace(/```json\s+|\s+```/g, '')
+        // Remove any explanatory text before or after the JSON array
+        .replace(/^[^[]*(\[.*\])[^\]]*$/, '$1')
+        // Clean up any escaped quotes
+        .replace(/\\"/g, '"')
+        // Remove any trailing commas before closing brackets
+        .replace(/,\s*([\]}])/g, '$1')
+        // Ensure response starts with [ and ends with ]
+        .replace(/^[^[]+(\[.*)$/, '$1')
+        .replace(/^(.*\])[^\]]+$/, '$1');
+
+      // If we got a single object, wrap it in an array
+      if (responseText.trim().startsWith('{')) {
+        responseText = `[${responseText}]`;
       }
-      
+
+      // Attempt to parse the cleaned response
+      results = JSON.parse(responseText);
+
       console.log('Parsed results:', JSON.stringify(results, null, 2));
     } catch (error) {
       console.error('JSON parse error:', error);
@@ -144,7 +160,8 @@ const searchResources = async (query, filters = {}, limit = 6) => {
       throw new Error('No valid results found in response');
     }
 
-    return validResults;
+    // Ensure we have exactly the requested number of results
+    return validResults.slice(0, limit);
   } catch (error) {
     console.error('Resource search failed:', error);
     throw error;
