@@ -1,0 +1,21 @@
+.content {
+    flex: 1;
+    overflow-y: auto;
+    background-color: #f9fafb;
+  }
+  
+  .goal-card {
+    transition: all 0.2s ease-in-out;
+  }
+  
+  .goal-card:hover {
+    transform: translateY(-2px);
+  }
+  
+  .subject-card {
+    transition: all 0.2s ease-in-out;
+  }
+  
+  .progress-bar {
+    transition: width 0.5s ease-in-out;
+  }

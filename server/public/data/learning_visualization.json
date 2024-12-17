@@ -1,0 +1,264 @@
+{
+  "timestamp": "2024-11-27T12:24:05.628Z",
+  "results": [
+    {
+      "userId": "test-user-consistent",
+      "learningProgression": [
+        0.5666676383449228,
+        0.4766912474075521,
+        0.47603593249760057,
+        0.47352857005261223,
+        0.5139880859914163,
+        0.49517195107832157,
+        0.482357710127024,
+        0.543435784754548,
+        0.5614417321111947,
+        0.546634615737834,
+        0.5492427177226503,
+        0.5724537590269566,
+        0.5968184708928962,
+        0.5940056364047295,
+        0.6168679827614094,
+        0.6019568034012913,
+        0.6171340143594453,
+        0.6459445636203414,
+        0.6460368588940217,
+        0.6607114235506142
+      ],
+      "timePatternEffectiveness": [
+        {
+          "Morning": 0.96,
+          "Afternoon": 0.7,
+          "Evening": 1,
+          "Night": 0.6
+        },
+        {
+          "Morning": 0.96,
+          "Afternoon": 0.7,
+          "Evening": 1,
+          "Night": 0.6
+        },
+        {
+          "Morning": 0.96,
+          "Afternoon": 0.7,
+          "Evening": 1,
+          "Night": 0.6
+        },
+        {
+          "Morning": 0.96,
+          "Afternoon": 0.7,
+          "Evening": 1,
+          "Night": 0.6
+        },
+        {
+          "Morning": 0.96,
+          "Afternoon": 0.7,
+          "Evening": 1,
+          "Night": 0.6
+        },
+        {
+          "Morning": 0.96,
+          "Afternoon": 0.7,
+          "Evening": 1,
+          "Night": 0.6
+        },
+        {
+          "Morning": 0.96,
+          "Afternoon": 0.7,
+          "Evening": 1,
+          "Night": 0.6
+        },
+        {
+          "Morning": 0.96,
+          "Afternoon": 0.7,
+          "Evening": 1,
+          "Night": 0.6
+        },
+        {
+          "Morning": 0.96,
+          "Afternoon": 0.7,
+          "Evening": 1,
+          "Night": 0.6
+        },
+        {
+          "Morning": 0.96,
+          "Afternoon": 0.7,
+          "Evening": 1,
+          "Night": 0.6
+        },
+        {
+          "Morning": 0.96,
+          "Afternoon": 0.7,
+          "Evening": 1,
+          "Night": 0.6
+        },
+        {
+          "Morning": 0.96,
+          "Afternoon": 0.7,
+          "Evening": 1,
+          "Night": 0.6
+        },
+        {
+          "Morning": 0.96,
+          "Afternoon": 0.7,
+          "Evening": 1,
+          "Night": 0.6
+        },
+        {
+          "Morning": 0.96,
+          "Afternoon": 0.7,
+          "Evening": 1,
+          "Night": 0.6
+        },
+        {
+          "Morning": 0.96,
+          "Afternoon": 0.7,
+          "Evening": 1,
+          "Night": 0.6
+        },
+        {
+          "Morning": 0.96,
+          "Afternoon": 0.7,
+          "Evening": 1,
+          "Night": 0.6
+        },
+        {
+          "Morning": 0.96,
+          "Afternoon": 0.7,
+          "Evening": 1,
+          "Night": 0.6
+        },
+        {
+          "Morning": 0.96,
+          "Afternoon": 0.7,
+          "Evening": 1,
+          "Night": 0.6
+        },
+        {
+          "Morning": 0.96,
+          "Afternoon": 0.7,
+          "Evening": 1,
+          "Night": 0.6
+        },
+        {
+          "Morning": 0.96,
+          "Afternoon": 0.7,
+          "Evening": 1,
+          "Night": 0.6
+        }
+      ],
+      "recommendations": [
+        [
+          "Evening sessions show better performance",
+          "Your most effective study time appears to be during Night",
+          "Optimal study time: Morning"
+        ],
+        [
+          "Morning sessions show better performance",
+          "Your most effective study time appears to be during Night",
+          "Optimal study time: Morning"
+        ],
+        [
+          "Afternoon sessions show better performance",
+          "Your most effective study time appears to be during Night",
+          "Optimal study time: Morning"
+        ],
+        [
+          "Morning sessions show better performance",
+          "Your most effective study time appears to be during Night",
+          "Optimal study time: Morning"
+        ],
+        [
+          "Afternoon sessions show better performance",
+          "Your most effective study time appears to be during Night",
+          "Optimal study time: Morning"
+        ],
+        [
+          "Afternoon sessions show better performance",
+          "Your most effective study time appears to be during Night",
+          "Optimal study time: Morning"
+        ],
+        [
+          "Morning sessions show better performance",
+          "Your most effective study time appears to be during Night",
+          "Optimal study time: Morning"
+        ],
+        [
+          "Afternoon sessions show better performance",
+          "Your most effective study time appears to be during Night",
+          "Optimal study time: Morning"
+        ],
+        [
+          "Morning sessions show better performance",
+          "Your most effective study time appears to be during Night",
+          "Optimal study time: Morning"
+        ],
+        [
+          "Afternoon sessions show better performance",
+          "Your most effective study time appears to be during Night",
+          "Optimal study time: Morning"
+        ],
+        [
+          "Afternoon sessions show better performance",
+          "Your most effective study time appears to be during Night",
+          "Optimal study time: Morning"
+        ],
+        [
+          "Morning sessions show better performance",
+          "Your most effective study time appears to be during Night",
+          "Optimal study time: Morning"
+        ],
+        [
+          "Evening sessions show better performance",
+          "Your most effective study time appears to be during Night",
+          "Optimal study time: Morning"
+        ],
+        [
+          "Afternoon sessions show better performance",
+          "Your most effective study time appears to be during Night",
+          "Optimal study time: Morning"
+        ],
+        [
+          "Afternoon sessions show better performance",
+          "Your most effective study time appears to be during Night",
+          "Optimal study time: Morning"
+        ],
+        [
+          "Afternoon sessions show better performance",
+          "Your most effective study time appears to be during Night",
+          "Optimal study time: Morning"
+        ],
+        [
+          "Morning sessions show better performance",
+          "Your most effective study time appears to be during Night",
+          "Optimal study time: Morning"
+        ],
+        [
+          "Morning sessions show better performance",
+          "Your most effective study time appears to be during Night",
+          "Optimal study time: Morning"
+        ],
+        [
+          "Morning sessions show better performance",
+          "Your most effective study time appears to be during Night",
+          "Optimal study time: Morning"
+        ],
+        [
+          "Morning sessions show better performance",
+          "Your most effective study time appears to be during Night",
+          "Optimal study time: Morning"
+        ]
+      ],
+      "finalMetrics": {
+        "overallCompletion": 0.5666666666666667,
+        "learningProgression": 0.6081802973790138,
+        "timeSlotEffectiveness": {
+          "Morning": 0.96,
+          "Afternoon": 0.7,
+          "Evening": 1,
+          "Night": 0.6
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,169 @@
+.view {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.taskContent {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.task-groups-container {
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 60px; /* Add padding to prevent content from being hidden behind pagination */
+}
+
+.task-group {
+  margin-bottom: 30px;
+}
+
+.group-title {
+  font-size: 18px;
+  color: #1E40AF;
+  margin-bottom: 15px;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.task-list {
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.task-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.task-item:last-child {
+  border-bottom: none;
+}
+
+.task-item + .task-item {
+  margin-top: 10px; /* Add a small gap between tasks */
+}
+
+.task-title {
+  font-weight: 600;
+  color: #333;
+}
+
+.task-date {
+  color: #777;
+  font-size: 0.9em;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.pagination button {
+  background-color: #54b9cd;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  margin: 0 10px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.pagination button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.pagination span {
+  font-size: 14px;
+  color: #333;
+}
+
+.viewHeader {
+  margin-bottom: 1.5rem;
+}
+
+.viewHeader .title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.button {
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.button.primary {
+  background-color: #1E40AF !important;
+  color: white;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.button.primary:hover {
+  background-color: #1E3A8A !important;
+}
+
+.button.bg-red-500 {
+  background-color: #EF4444;
+}
+
+.button.bg-red-500:hover {
+  background-color: #DC2626;
+}
+
+.button.bg-green-500 {
+  background-color: #10B981;
+}
+
+.button.bg-green-500:hover {
+  background-color: #059669;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+  color: #6b7280;
+}
+
+.empty-state svg {
+  width: 3rem;
+  height: 3rem;
+  margin-bottom: 1rem;
+  color: #9ca3af;
+}
+
+.empty-state h3 {
+  font-size: 1.125rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.empty-state p {
+  color: #6b7280;
+}
