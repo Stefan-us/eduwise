@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
 import {
   Container,
   Paper,
@@ -17,9 +16,7 @@ import axios from 'axios';
 import PlannerResults from './PlannerResults';
 import PlannerVisualizer from './PlannerVisualizer';
 
-const ViewPlan = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
+const ViewPlan = ({ planId }) => {
   const [plan, setPlan] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -27,13 +24,15 @@ const ViewPlan = () => {
   const [reschedulingSuggestions, setReschedulingSuggestions] = useState([]);
 
   useEffect(() => {
-    fetchPlan();
-  }, [id]);
+    if (planId) {
+      fetchPlan();
+    }
+  }, [planId]);
 
   const fetchPlan = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await axios.get(`http://localhost:50001/api/study-plans/${id}`, {
+      const response = await axios.get(`http://localhost:50001/api/study-plans/${planId}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -51,7 +50,7 @@ const ViewPlan = () => {
     try {
       const token = localStorage.getItem('accessToken');
       const response = await axios.patch(
-        `http://localhost:50001/api/study-plans/${id}/session`,
+        `http://localhost:50001/api/study-plans/${planId}/session`,
         { sessionId, completed },
         {
           headers: {
@@ -77,7 +76,7 @@ const ViewPlan = () => {
     try {
       const token = localStorage.getItem('accessToken');
       const response = await axios.post(
-        `http://localhost:50001/api/study-plans/${id}/reschedule-suggestions`,
+        `http://localhost:50001/api/study-plans/${planId}/reschedule-suggestions`,
         { sessionId },
         {
           headers: {
@@ -97,7 +96,7 @@ const ViewPlan = () => {
     try {
       const token = localStorage.getItem('accessToken');
       const response = await axios.post(
-        `http://localhost:50001/api/study-plans/${id}/reschedule-session`,
+        `http://localhost:50001/api/study-plans/${planId}/reschedule-session`,
         { sessionId, newTime },
         {
           headers: {
@@ -115,60 +114,44 @@ const ViewPlan = () => {
 
   if (loading) {
     return (
-      <Container maxWidth="lg">
-        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-          <CircularProgress />
-        </Box>
-      </Container>
+      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+        <CircularProgress />
+      </Box>
     );
   }
 
   if (error) {
     return (
-      <Container maxWidth="lg">
-        <Alert severity="error" sx={{ mt: 4 }}>{error}</Alert>
-      </Container>
+      <Alert severity="error" sx={{ mt: 4 }}>{error}</Alert>
     );
   }
 
   if (!plan) {
     return (
-      <Container maxWidth="lg">
-        <Alert severity="info" sx={{ mt: 4 }}>Study plan not found</Alert>
-      </Container>
+      <Alert severity="info" sx={{ mt: 4 }}>Study plan not found</Alert>
     );
   }
 
   return (
-    <Container maxWidth="lg">
-      <Box sx={{ mt: 4, mb: 4 }}>
-        <Button
-          variant="outlined"
-          onClick={() => navigate('/study-planner')}
-          sx={{ mb: 2 }}
-        >
-          Back to Study Plans
-        </Button>
+    <Box>
+      <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
+        <Typography variant="h4" gutterBottom>
+          {plan.subject}
+        </Typography>
+        <Typography variant="body1" color="text.secondary" paragraph>
+          {plan.goal}
+        </Typography>
+      </Paper>
 
-        <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
-          <Typography variant="h4" gutterBottom>
-            {plan.subject}
-          </Typography>
-          <Typography variant="body1" color="text.secondary" paragraph>
-            {plan.goal}
-          </Typography>
-        </Paper>
+      <Box sx={{ mb: 3 }}>
+        <PlannerVisualizer plan={plan} />
+      </Box>
 
-        <Box sx={{ mb: 3 }}>
-          <PlannerVisualizer plan={plan} />
-        </Box>
-
-        <Box>
-          <PlannerResults
-            plan={plan}
-            onSessionComplete={handleSessionComplete}
-          />
-        </Box>
+      <Box>
+        <PlannerResults
+          plan={plan}
+          onSessionComplete={handleSessionComplete}
+        />
       </Box>
 
       <Dialog
@@ -198,7 +181,7 @@ const ViewPlan = () => {
           <Button onClick={() => setRescheduleDialog(false)}>Cancel</Button>
         </DialogActions>
       </Dialog>
-    </Container>
+    </Box>
   );
 };
 

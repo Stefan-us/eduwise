@@ -220,27 +220,6 @@ function App() {
                       </Layout>
                     ) : <Navigate to="/login" />
                   } />
-                  <Route path="/study-planner" element={
-                    user ? (
-                      <Layout user={user} onLogout={handleLogout}>
-                        <StudyPlanList />
-                      </Layout>
-                    ) : <Navigate to="/login" />
-                  } />
-                  <Route path="/study-planner/create" element={
-                    user ? (
-                      <Layout user={user} onLogout={handleLogout}>
-                        <StudyPlanner />
-                      </Layout>
-                    ) : <Navigate to="/login" />
-                  } />
-                  <Route path="/study-planner/plan/:id" element={
-                    user ? (
-                      <Layout user={user} onLogout={handleLogout}>
-                        <ViewPlan />
-                      </Layout>
-                    ) : <Navigate to="/login" />
-                  } />
                   <Route path="/" element={user ? <Navigate to="/dashboard" /> : <Navigate to="/login" />} />
                   <Route path="*" element={<Navigate to={user ? "/dashboard" : "/login"} />} />
                 </Routes>
