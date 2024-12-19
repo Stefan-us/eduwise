@@ -1,17 +1,5 @@
 const mongoose = require('mongoose');
 
-const studySessionSchema = new mongoose.Schema({
-  day: String,
-  time: String,
-  duration: String,
-  topic: String,
-  resources: [String],
-  completed: {
-    type: Boolean,
-    default: false
-  }
-});
-
 const studyPlanSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
@@ -32,19 +20,58 @@ const studyPlanSchema = new mongoose.Schema({
   },
   preferredTimes: [{
     type: String,
-    enum: ['Morning', 'Afternoon', 'Evening', 'Night']
+    required: true
   }],
   restrictions: [{
-    type: String,
-    enum: ['No weekends', 'No early mornings', 'No late nights']
+    type: String
   }],
-  progress: {
-    type: Number,
-    default: 0
+  learningStyle: {
+    type: String,
+    enum: ['visual', 'auditory', 'reading', 'kinesthetic'],
+    required: true
   },
-  nextSession: studySessionSchema,
-  upcomingSessions: [studySessionSchema],
-  completedSessions: [studySessionSchema],
+  difficultyPreference: {
+    type: String,
+    enum: ['easy', 'moderate', 'challenging'],
+    required: true
+  },
+  aiGeneratedPlan: {
+    sessions: [{
+      day: String,
+      time: String,
+      duration: String,
+      topic: String,
+      completed: {
+        type: Boolean,
+        default: false
+      }
+    }],
+    modelParameters: {
+      learningRate: Number,
+      sessionDuration: Number,
+      topicDifficulty: Number,
+      confidenceScore: Number
+    },
+    generationMetadata: {
+      modelVersion: String,
+      generatedAt: Date,
+      lastUpdated: Date
+    }
+  },
+  userCustomizations: {
+    sessionModifications: [{
+      sessionId: String,
+      originalTime: String,
+      modifiedTime: String,
+      reason: String
+    }],
+    preferenceUpdates: [{
+      parameter: String,
+      oldValue: mongoose.Schema.Types.Mixed,
+      newValue: mongoose.Schema.Types.Mixed,
+      updatedAt: Date
+    }]
+  },
   metrics: {
     sessionCompletionRate: {
       type: Number,
@@ -54,22 +81,32 @@ const studyPlanSchema = new mongoose.Schema({
       type: Number,
       default: 0
     },
-    preferredTimeSlots: [{
-      dayOfWeek: String,
-      hour: Number,
-      successRate: Number
-    }],
     topicDifficulty: {
       type: Number,
-      default: 5  // Scale 1-10
+      default: 0
     },
     learningVelocity: {
       type: Number,
-      default: 1  // Multiplier for expected progress
+      default: 0
     }
+  },
+  status: {
+    type: String,
+    enum: ['active', 'completed', 'archived'],
+    default: 'active'
   }
 }, {
   timestamps: true
 });
 
-module.exports = mongoose.model('StudyPlan', studyPlanSchema);
+// Pre-save middleware to update metrics
+studyPlanSchema.pre('save', function(next) {
+  if (this.aiGeneratedPlan && this.aiGeneratedPlan.sessions) {
+    const completedSessions = this.aiGeneratedPlan.sessions.filter(s => s.completed);
+    this.metrics.sessionCompletionRate = completedSessions.length / this.aiGeneratedPlan.sessions.length;
+  }
+  next();
+});
+
+const StudyPlan = mongoose.model('StudyPlan', studyPlanSchema);
+module.exports = StudyPlan; 

@@ -1,113 +1,179 @@
 const StudyPlan = require('../models/StudyPlan');
+const studyPlannerService = require('../services/aiService/studyPlannerService');
 
-exports.createStudyPlan = async (req, res) => {
+exports.generatePlan = async (req, res) => {
   try {
-    const { title, description, startDate, endDate, tasks } = req.body;
-    const studyPlan = new StudyPlan({
-      title,
-      description,
-      user: req.user._id,
-      startDate,
-      endDate,
-      tasks
+    const {
+      subject,
+      goal,
+      deadline,
+      preferredTimes,
+      restrictions,
+      learningStyle,
+      difficultyPreference
+    } = req.body;
+
+    // Generate AI plan
+    const aiGeneratedPlan = await studyPlannerService.generateStudyPlan({
+      subject,
+      goal,
+      deadline,
+      preferredTimes,
+      restrictions,
+      learningStyle,
+      difficultyPreference
     });
+
+    // Create new study plan
+    const studyPlan = new StudyPlan({
+      user: req.user.userId,
+      subject,
+      goal,
+      deadline,
+      preferredTimes,
+      restrictions,
+      learningStyle,
+      difficultyPreference,
+      aiGeneratedPlan
+    });
+
     await studyPlan.save();
     res.status(201).json(studyPlan);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    console.error('Study plan generation failed:', error);
+    res.status(500).json({ message: 'Failed to generate study plan', error: error.message });
   }
 };
 
-exports.getStudyPlans = async (req, res) => {
+exports.getAllPlans = async (req, res) => {
   try {
-    const studyPlans = await StudyPlan.find({ user: req.user._id })
-      .populate('tasks', 'title status');
-    res.json(studyPlans);
+    const plans = await StudyPlan.find({ user: req.user.userId })
+      .sort({ createdAt: -1 });
+    res.json(plans);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(500).json({ message: 'Failed to fetch study plans', error: error.message });
   }
 };
 
-exports.getStudyPlan = async (req, res) => {
+exports.getPlanById = async (req, res) => {
   try {
-    const studyPlan = await StudyPlan.findOne({ _id: req.params.id, user: req.user._id })
-      .populate('tasks', 'title status');
-    if (!studyPlan) {
-      return res.status(404).json({ error: 'Study plan not found' });
+    const plan = await StudyPlan.findOne({
+      _id: req.params.id,
+      user: req.user.userId
+    });
+    
+    if (!plan) {
+      return res.status(404).json({ message: 'Study plan not found' });
     }
-    res.json(studyPlan);
+    
+    res.json(plan);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(500).json({ message: 'Failed to fetch study plan', error: error.message });
   }
 };
 
-exports.updateStudyPlan = async (req, res) => {
+exports.updatePlan = async (req, res) => {
   try {
-    const studyPlan = await StudyPlan.findOneAndUpdate(
-      { _id: req.params.id, user: req.user._id },
-      req.body,
-      { new: true, runValidators: true }
-    )
-      .populate('tasks', 'title status');
-    if (!studyPlan) {
-      return res.status(404).json({ error: 'Study plan not found' });
-    }
-    res.json(studyPlan);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-};
+    const {
+      subject,
+      goal,
+      deadline,
+      preferredTimes,
+      restrictions,
+      learningStyle,
+      difficultyPreference,
+      userCustomizations
+    } = req.body;
 
-exports.deleteStudyPlan = async (req, res) => {
-  try {
-    const studyPlan = await StudyPlan.findOneAndDelete({ _id: req.params.id, user: req.user._id });
-    if (!studyPlan) {
-      return res.status(404).json({ error: 'Study plan not found' });
-    }
-    res.json({ message: 'Study plan deleted successfully' });
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-};
-
-exports.completeSession = async (req, res) => {
-  try {
-    const studyPlan = await StudyPlan.findOne({ 
-      _id: req.params.id, 
-      user: req.user._id 
+    const plan = await StudyPlan.findOne({
+      _id: req.params.id,
+      user: req.user.userId
     });
 
-    if (!studyPlan) {
-      return res.status(404).json({ error: 'Study plan not found' });
+    if (!plan) {
+      return res.status(404).json({ message: 'Study plan not found' });
+    }
+
+    // Update basic fields
+    plan.subject = subject || plan.subject;
+    plan.goal = goal || plan.goal;
+    plan.deadline = deadline || plan.deadline;
+    plan.preferredTimes = preferredTimes || plan.preferredTimes;
+    plan.restrictions = restrictions || plan.restrictions;
+    plan.learningStyle = learningStyle || plan.learningStyle;
+    plan.difficultyPreference = difficultyPreference || plan.difficultyPreference;
+
+    // Update customizations if provided
+    if (userCustomizations) {
+      plan.userCustomizations = {
+        ...plan.userCustomizations,
+        ...userCustomizations
+      };
+    }
+
+    // Regenerate AI plan if core parameters changed
+    if (subject || goal || deadline || preferredTimes || restrictions || 
+        learningStyle || difficultyPreference) {
+      const aiGeneratedPlan = await studyPlannerService.generateStudyPlan({
+        subject: plan.subject,
+        goal: plan.goal,
+        deadline: plan.deadline,
+        preferredTimes: plan.preferredTimes,
+        restrictions: plan.restrictions,
+        learningStyle: plan.learningStyle,
+        difficultyPreference: plan.difficultyPreference
+      });
+      plan.aiGeneratedPlan = aiGeneratedPlan;
+    }
+
+    await plan.save();
+    res.json(plan);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to update study plan', error: error.message });
+  }
+};
+
+exports.deletePlan = async (req, res) => {
+  try {
+    const plan = await StudyPlan.findOneAndDelete({
+      _id: req.params.id,
+      user: req.user.userId
+    });
+
+    if (!plan) {
+      return res.status(404).json({ message: 'Study plan not found' });
+    }
+
+    res.json({ message: 'Study plan deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to delete study plan', error: error.message });
+  }
+};
+
+exports.updateSessionStatus = async (req, res) => {
+  try {
+    const { sessionId, completed } = req.body;
+    
+    const plan = await StudyPlan.findOne({
+      _id: req.params.id,
+      user: req.user.userId
+    });
+
+    if (!plan) {
+      return res.status(404).json({ message: 'Study plan not found' });
     }
 
     // Update session status
-    if (studyPlan.nextSession?._id.toString() === req.params.sessionId) {
-      studyPlan.nextSession.completed = true;
-      studyPlan.completedSessions.push(studyPlan.nextSession);
-      studyPlan.nextSession = studyPlan.upcomingSessions[0] || null;
-      studyPlan.upcomingSessions = studyPlan.upcomingSessions.slice(1);
-    } else {
-      const sessionIndex = studyPlan.upcomingSessions.findIndex(
-        s => s._id.toString() === req.params.sessionId
-      );
-      if (sessionIndex !== -1) {
-        const completedSession = studyPlan.upcomingSessions[sessionIndex];
-        completedSession.completed = true;
-        studyPlan.completedSessions.push(completedSession);
-        studyPlan.upcomingSessions.splice(sessionIndex, 1);
-      }
+    const session = plan.aiGeneratedPlan.sessions.id(sessionId);
+    if (!session) {
+      return res.status(404).json({ message: 'Session not found' });
     }
 
-    // Update progress
-    const totalSessions = studyPlan.completedSessions.length + 
-                         (studyPlan.nextSession ? 1 : 0) + 
-                         studyPlan.upcomingSessions.length;
-    studyPlan.progress = (studyPlan.completedSessions.length / totalSessions) * 100;
+    session.completed = completed;
+    await plan.save();
 
-    await studyPlan.save();
-    res.json(studyPlan);
+    res.json(plan);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(500).json({ message: 'Failed to update session status', error: error.message });
   }
-};
+}; 

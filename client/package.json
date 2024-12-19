@@ -21,6 +21,7 @@
     "@mui/icons-material": "^6.1.1",
     "@mui/material": "^6.1.1",
     "@mui/lab": "5.0.0-alpha.155",
+    "@mui/x-date-pickers": "^6.18.6",
     "@tensorflow/tfjs": "1.7.4",
     "@tensorflow/tfjs-core": "1.7.4",
     "@tensorflow/tfjs-converter": "1.7.4",

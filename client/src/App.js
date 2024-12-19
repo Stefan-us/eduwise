@@ -6,6 +6,7 @@ import DashboardPage from './pages/DashboardPage';
 import ProfilePage from './pages/ProfilePage';
 import ActivitiesPage from './pages/ActivitiesPage';
 import Layout from './components/Layout/Layout';
+import StudyPlanner from './components/AI/StudyPlanner';
 import axios from 'axios';
 import { debounce } from 'lodash';
 import { UserProvider } from './contexts/UserContext';
@@ -13,6 +14,7 @@ import { TaskProvider } from './contexts/TaskContext';
 import { LearningProvider } from './contexts/LearningContext';
 import LearningPage from './pages/LearningPage';
 import TestVisualizer from './components/visualization/TestVisualizer';
+import StudyPlanList from './components/AI/StudyPlanner/StudyPlanList';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -214,6 +216,27 @@ function App() {
                     user ? (
                       <Layout user={user} onLogout={handleLogout}>
                         <TestVisualizer />
+                      </Layout>
+                    ) : <Navigate to="/login" />
+                  } />
+                  <Route path="/study-planner" element={
+                    user ? (
+                      <Layout user={user} onLogout={handleLogout}>
+                        <StudyPlanList />
+                      </Layout>
+                    ) : <Navigate to="/login" />
+                  } />
+                  <Route path="/study-planner/create" element={
+                    user ? (
+                      <Layout user={user} onLogout={handleLogout}>
+                        <StudyPlanner />
+                      </Layout>
+                    ) : <Navigate to="/login" />
+                  } />
+                  <Route path="/study-planner/plan/:id" element={
+                    user ? (
+                      <Layout user={user} onLogout={handleLogout}>
+                        <StudyPlanner />
                       </Layout>
                     ) : <Navigate to="/login" />
                   } />

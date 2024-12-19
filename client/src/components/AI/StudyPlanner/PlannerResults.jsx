@@ -11,7 +11,7 @@ import {
   IconButton,
   Stack,
   LinearProgress,
-  Tooltip
+  Grid
 } from '@mui/material';
 import {
   CheckCircle as CheckCircleIcon,
@@ -29,8 +29,14 @@ const PlannerResults = ({ plan, onSessionComplete }) => {
     metrics
   } = plan;
 
-  const formatTime = (time) => {
-    return format(new Date(`2000-01-01 ${time}`), 'h:mm a');
+  // Calculate dates for each session based on deadline
+  const calculateSessionDate = (index) => {
+    const deadlineDate = new Date(deadline);
+    const totalDays = aiGeneratedPlan.sessions.length;
+    const daysPerSession = Math.max(1, Math.floor(totalDays / aiGeneratedPlan.sessions.length));
+    const date = new Date(deadlineDate);
+    date.setDate(date.getDate() - (totalDays - index) * daysPerSession);
+    return date;
   };
 
   return (
@@ -67,23 +73,29 @@ const PlannerResults = ({ plan, onSessionComplete }) => {
               </Typography>
             </Box>
 
-            <Stack direction="row" spacing={2}>
-              <Chip
-                icon={<InfoIcon />}
-                label={`Avg. Duration: ${Math.round(metrics.averageSessionDuration)}min`}
-                variant="outlined"
-              />
-              <Chip
-                icon={<InfoIcon />}
-                label={`Difficulty: ${metrics.topicDifficulty.toFixed(1)}/5`}
-                variant="outlined"
-              />
-              <Chip
-                icon={<InfoIcon />}
-                label={`Learning Velocity: ${metrics.learningVelocity.toFixed(1)}`}
-                variant="outlined"
-              />
-            </Stack>
+            <Grid container spacing={2}>
+              <Grid item>
+                <Chip
+                  icon={<InfoIcon />}
+                  label={`Duration: 45 min/session`}
+                  variant="outlined"
+                />
+              </Grid>
+              <Grid item>
+                <Chip
+                  icon={<InfoIcon />}
+                  label={`Sessions: ${aiGeneratedPlan.sessions.length}`}
+                  variant="outlined"
+                />
+              </Grid>
+              <Grid item>
+                <Chip
+                  icon={<InfoIcon />}
+                  label={`Total Hours: ${Math.round(aiGeneratedPlan.sessions.length * 45 / 60)}`}
+                  variant="outlined"
+                />
+              </Grid>
+            </Grid>
           </Stack>
         </Box>
 
@@ -112,30 +124,37 @@ const PlannerResults = ({ plan, onSessionComplete }) => {
                 >
                   <ListItemText
                     primary={
-                      <Typography
-                        variant="subtitle2"
-                        sx={{
-                          textDecoration: session.completed ? 'line-through' : 'none',
-                          color: session.completed ? 'text.secondary' : 'text.primary'
-                        }}
-                      >
-                        {session.topic}
-                      </Typography>
+                      <Box sx={{ 
+                        textDecoration: session.completed ? 'line-through' : 'none',
+                        color: session.completed ? 'text.secondary' : 'text.primary'
+                      }}>
+                        <Typography variant="subtitle2">
+                          Study Session {index + 1}
+                        </Typography>
+                      </Box>
                     }
                     secondary={
-                      <Stack direction="row" spacing={1} alignItems="center">
-                        <Typography variant="caption">
-                          {session.day}
-                        </Typography>
-                        <Typography variant="caption">
-                          {session.time}
-                        </Typography>
-                        <Chip
-                          label={session.duration}
-                          size="small"
-                          variant="outlined"
-                        />
-                      </Stack>
+                      <Box>
+                        <Grid container spacing={1} alignItems="center">
+                          <Grid item>
+                            <Typography variant="caption">
+                              {format(calculateSessionDate(index), 'EEE, MMM d')}
+                            </Typography>
+                          </Grid>
+                          <Grid item>
+                            <Typography variant="caption">
+                              {session.time}
+                            </Typography>
+                          </Grid>
+                          <Grid item>
+                            <Chip
+                              label={`${session.duration} minutes`}
+                              size="small"
+                              variant="outlined"
+                            />
+                          </Grid>
+                        </Grid>
+                      </Box>
                     }
                   />
                 </ListItem>
@@ -147,23 +166,19 @@ const PlannerResults = ({ plan, onSessionComplete }) => {
 
         <Box>
           <Typography variant="subtitle2" color="text.secondary">
-            AI Model Parameters
+            Plan Details
           </Typography>
           <Stack direction="row" spacing={1} flexWrap="wrap">
-            <Tooltip title="Model's learning rate parameter">
-              <Chip
-                size="small"
-                label={`LR: ${aiGeneratedPlan.modelParameters.learningRate.toFixed(3)}`}
-                variant="outlined"
-              />
-            </Tooltip>
-            <Tooltip title="Confidence score for the generated plan">
-              <Chip
-                size="small"
-                label={`Confidence: ${(aiGeneratedPlan.modelParameters.confidenceScore * 100).toFixed(1)}%`}
-                variant="outlined"
-              />
-            </Tooltip>
+            <Chip
+              size="small"
+              label={`Created: ${format(new Date(plan.createdAt), 'PPP')}`}
+              variant="outlined"
+            />
+            <Chip
+              size="small"
+              label={`Status: ${plan.status}`}
+              variant="outlined"
+            />
           </Stack>
         </Box>
       </Stack>

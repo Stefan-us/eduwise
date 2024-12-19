@@ -18,10 +18,17 @@ const StudyPlanner = () => {
     setError(null);
 
     try {
-      const response = await axios.post('/api/study-plans/generate', formData);
+      const token = localStorage.getItem('accessToken');
+      const response = await axios.post('http://localhost:50001/api/study-plans/generate', formData, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
       setStudyPlan(response.data);
       setActiveStep(1);
     } catch (err) {
+      console.error('Error generating study plan:', err);
       setError(err.response?.data?.message || 'Failed to generate study plan');
     } finally {
       setLoading(false);
@@ -30,12 +37,19 @@ const StudyPlanner = () => {
 
   const handleSessionComplete = async (sessionId, completed) => {
     try {
-      const response = await axios.patch(`/api/study-plans/${studyPlan._id}/session`, {
+      const token = localStorage.getItem('accessToken');
+      const response = await axios.patch(`http://localhost:50001/api/study-plans/${studyPlan._id}/session`, {
         sessionId,
         completed
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
       });
       setStudyPlan(response.data);
     } catch (err) {
+      console.error('Error updating session:', err);
       setError(err.response?.data?.message || 'Failed to update session status');
     }
   };
