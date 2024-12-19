@@ -104,6 +104,84 @@ class StudyPlannerService {
       restriction.toLowerCase().includes(dayOfWeek)
     );
   }
+
+  async generateRescheduleSuggestions({ plan, session, userId }) {
+    try {
+      const now = new Date();
+      const deadline = new Date(plan.deadline);
+      const daysUntilDeadline = Math.ceil((deadline - now) / (1000 * 60 * 60 * 24));
+
+      // Get user's preferred times and restrictions
+      const { preferredTimes, restrictions } = plan;
+      
+      // Get completion patterns from metrics
+      const completionPatterns = await this.analyzeCompletionPatterns(plan);
+      
+      // Generate potential time slots
+      const suggestions = [];
+      const maxSuggestions = 3;
+      let currentDate = new Date();
+
+      while (suggestions.length < maxSuggestions && currentDate < deadline) {
+        // Skip to next day if current day is restricted
+        if (this.isDayRestricted(currentDate, restrictions)) {
+          currentDate.setDate(currentDate.getDate() + 1);
+          continue;
+        }
+
+        // Check each preferred time slot
+        for (const timeSlot of preferredTimes) {
+          if (suggestions.length >= maxSuggestions) break;
+
+          const successRate = completionPatterns[timeSlot] || 0.5;
+          const isGoodTimeSlot = successRate > 0.6;
+
+          if (isGoodTimeSlot) {
+            suggestions.push({
+              sessionId: session._id,
+              time: `${currentDate.toISOString().split('T')[0]} ${timeSlot}`,
+              reason: `${Math.round(successRate * 100)}% completion rate in this time slot`
+            });
+          }
+        }
+
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+
+      return suggestions;
+    } catch (error) {
+      console.error('Error generating reschedule suggestions:', error);
+      throw error;
+    }
+  }
+
+  async analyzeCompletionPatterns(plan) {
+    const patterns = {};
+    const { sessions } = plan.aiGeneratedPlan;
+
+    // Group sessions by time slot and calculate completion rates
+    sessions.forEach(session => {
+      const timeSlot = session.time;
+      if (!patterns[timeSlot]) {
+        patterns[timeSlot] = {
+          total: 0,
+          completed: 0
+        };
+      }
+      patterns[timeSlot].total++;
+      if (session.completed) {
+        patterns[timeSlot].completed++;
+      }
+    });
+
+    // Calculate success rates for each time slot
+    Object.keys(patterns).forEach(timeSlot => {
+      const { total, completed } = patterns[timeSlot];
+      patterns[timeSlot] = completed / total;
+    });
+
+    return patterns;
+  }
 }
 
 module.exports = new StudyPlannerService(); 

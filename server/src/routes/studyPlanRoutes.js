@@ -24,4 +24,8 @@ router.delete('/:id', studyPlanController.deletePlan);
 // Update session status
 router.patch('/:id/session', studyPlanController.updateSessionStatus);
 
+// Add rescheduling routes
+router.post('/:id/reschedule-suggestions', studyPlanController.generateRescheduleSuggestions);
+router.post('/:id/reschedule-session', studyPlanController.rescheduleSession);
+
 module.exports = router;

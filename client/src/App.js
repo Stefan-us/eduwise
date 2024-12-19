@@ -7,6 +7,7 @@ import ProfilePage from './pages/ProfilePage';
 import ActivitiesPage from './pages/ActivitiesPage';
 import Layout from './components/Layout/Layout';
 import StudyPlanner from './components/AI/StudyPlanner';
+import ViewPlan from './components/AI/StudyPlanner/ViewPlan';
 import axios from 'axios';
 import { debounce } from 'lodash';
 import { UserProvider } from './contexts/UserContext';
@@ -236,7 +237,7 @@ function App() {
                   <Route path="/study-planner/plan/:id" element={
                     user ? (
                       <Layout user={user} onLogout={handleLogout}>
-                        <StudyPlanner />
+                        <ViewPlan />
                       </Layout>
                     ) : <Navigate to="/login" />
                   } />

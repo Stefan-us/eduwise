@@ -176,4 +176,77 @@ exports.updateSessionStatus = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Failed to update session status', error: error.message });
   }
+};
+
+exports.generateRescheduleSuggestions = async (req, res) => {
+  try {
+    const { sessionId } = req.body;
+    const plan = await StudyPlan.findOne({
+      _id: req.params.id,
+      user: req.user.userId
+    });
+
+    if (!plan) {
+      return res.status(404).json({ message: 'Study plan not found' });
+    }
+
+    // Get the session to reschedule
+    const session = plan.aiGeneratedPlan.sessions.id(sessionId);
+    if (!session) {
+      return res.status(404).json({ message: 'Session not found' });
+    }
+
+    // Generate suggestions based on user's preferences and schedule
+    const suggestions = await studyPlannerService.generateRescheduleSuggestions({
+      plan,
+      session,
+      userId: req.user.userId
+    });
+
+    res.json({ suggestions });
+  } catch (error) {
+    console.error('Failed to generate reschedule suggestions:', error);
+    res.status(500).json({ message: 'Failed to generate reschedule suggestions', error: error.message });
+  }
+};
+
+exports.rescheduleSession = async (req, res) => {
+  try {
+    const { sessionId, newTime } = req.body;
+    const plan = await StudyPlan.findOne({
+      _id: req.params.id,
+      user: req.user.userId
+    });
+
+    if (!plan) {
+      return res.status(404).json({ message: 'Study plan not found' });
+    }
+
+    // Find and update the session
+    const session = plan.aiGeneratedPlan.sessions.id(sessionId);
+    if (!session) {
+      return res.status(404).json({ message: 'Session not found' });
+    }
+
+    // Store the original time in modifications history
+    plan.userCustomizations.sessionModifications.push({
+      sessionId: session._id,
+      originalTime: session.time,
+      modifiedTime: newTime,
+      reason: 'Rescheduled missed session'
+    });
+
+    // Update the session time
+    session.time = newTime;
+    session.completed = false;
+
+    // Update the plan's metadata
+    plan.aiGeneratedPlan.generationMetadata.lastUpdated = new Date();
+
+    await plan.save();
+    res.json(plan);
+  } catch (error) {
+    console.error('Failed to reschedule session:', error);
+    res.status(500).json({ message: 'Failed to reschedule session', error: error.message });
+  }
 }; 
