@@ -8,6 +8,7 @@ const userRoutes = require('./routes/userRoutes');
 const learningGoalRoutes = require('./routes/learningGoalRoutes');
 const subjectRoutes = require('./routes/subjectRoutes');
 const resourceSearchRoutes = require('./routes/resourceSearch.routes');
+const performanceRoutes = require('./routes/performance.routes');
 
 dotenv.config();
 
@@ -56,6 +57,7 @@ app.use('/api/study-plans', studyPlanRoutes);
 app.use('/api/learning-goals', learningGoalRoutes);
 app.use('/api/subjects', subjectRoutes);
 app.use('/api/resources', resourceSearchRoutes);
+app.use('/api/performance', performanceRoutes);
 
 app.get('/', (req, res) => {
   res.send('Welcome to EduWise API');
